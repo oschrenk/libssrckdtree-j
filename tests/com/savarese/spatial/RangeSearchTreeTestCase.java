@@ -244,4 +244,85 @@ public abstract class RangeSearchTreeTestCase<Coord extends Number & Comparable<
 
     assertEquals(map, _tree_);
   }
+
+  public void testNearestNeighbors() {
+    NearestNeighbors<Coord, GenericPoint<Coord>, GenericPoint<Coord>> nn =
+      new NearestNeighbors<Coord, GenericPoint<Coord>, GenericPoint<Coord>>();
+    final GenericPoint<Coord> query =
+      new GenericPoint<Coord>(newCoord(getMaxCoord().intValue() / 2),
+                              newCoord(getMaxCoord().intValue() / 2));
+    final EuclideanDistance<Coord, GenericPoint<Coord>> d =
+      new EuclideanDistance<Coord, GenericPoint<Coord>>();
+
+    KDTree<Coord, GenericPoint<Coord>, GenericPoint<Coord>> tree =
+      (KDTree<Coord, GenericPoint<Coord>, GenericPoint<Coord>>)_tree_;
+
+    _fillMap_(tree);
+
+    ArrayList<GenericPoint<Coord>> sortedPoints = new ArrayList(__points);
+
+    Collections.sort(sortedPoints, new Comparator<GenericPoint<Coord>>() {
+        public int compare(GenericPoint<Coord> o1, GenericPoint<Coord> o2) {
+          double d1 = d.distance2(query, o1);
+          double d2 = d.distance2(query, o2);
+          if(d1 < d2)
+            return -1;
+          else if(d1 > d2)
+            return 1;
+          return 0;
+        }
+        public boolean equals(Object obj) {
+          return (obj == this);
+        }
+      });
+
+    NearestNeighbors.Entry<Coord,GenericPoint<Coord>,GenericPoint<Coord>>[] n;
+
+    for(int i = 1; i < 11; ++i) {
+      n = nn.get(tree, query, i, false);
+
+      assertNotNull(n);
+      assertEquals(i, n.length);
+
+      for(int j = 0; j < n.length; ++j) {
+        assertEquals(sortedPoints.get(j), n[j].getNeighbor().getKey());
+      }
+    }
+
+    for(int i = 1; i < 11; ++i) {
+      int j = 0;
+      n = nn.get(tree, query, i);
+
+      assertNotNull(n);
+      assertEquals(i, n.length);
+
+      if(sortedPoints.get(0).equals(query)) {
+        ++j;
+      }
+
+      for(int k = 0; k < n.length; ++k, ++j) {
+        assertEquals(sortedPoints.get(j), n[k].getNeighbor().getKey());
+      }
+    }
+
+    final GenericPoint<Coord> q =
+      new GenericPoint<Coord>(newCoord(1), newCoord(1));
+    final GenericPoint<Coord> p =
+      new GenericPoint<Coord>(newCoord(2), newCoord(2));
+    tree.put(p, p);
+
+    n = nn.get(tree, q, 1);
+
+    assertNotNull(n);
+    assertEquals(1, n.length);
+
+    assertTrue(n[0].getNeighbor().getKey().equals(p) ||
+                 d.distance2(q, n[0].getNeighbor().getKey()) < 2);
+
+    n = nn.get(tree, p, 1, false);
+
+    assertNotNull(n);
+    assertEquals(1, n.length);
+    assertEquals(p, n[0].getNeighbor().getKey());
+  }
 }

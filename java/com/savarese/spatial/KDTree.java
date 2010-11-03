@@ -137,8 +137,11 @@ public class KDTree<Coord extends Comparable<? super Coord>,
     }
 
     // This violates the contract for entrySet, but we can't support
-    // in a reasonable fashion the removal of mappings through the iterator
-    // because of changes to the tree structure.
+    // in a reasonable fashion the removal of mappings through the iterator.
+    // Java iterators require a hasNext() function, which forces the stack
+    // to reflect a future search state, making impossible to adjust the current
+    // stack after a removal.  Implementation alternatives are all too
+    // expensive.  Yet another reason to favor the C++ implementation...
     public void remove()
       throws UnsupportedOperationException
     {

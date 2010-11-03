@@ -63,6 +63,22 @@ public class GenericPoint<Coord extends Comparable<? super Coord>>
   }
 
   /**
+   * Four-dimensional convenience constructor.
+   *
+   * @param x The coordinate value of the first dimension.
+   * @param y The coordinate value of the second dimension.
+   * @param z The coordinate value of the third dimension.
+   * @param w The coordinate value of the fourth dimension.
+   */
+  public GenericPoint(Coord x, Coord y, Coord z, Coord w) {
+    this(4);
+    setCoord(0, x);
+    setCoord(1, y);
+    setCoord(2, z);
+    setCoord(3, w);
+  }
+
+  /**
    * Sets the value of the coordinate for the specified dimension.
    *
    * @param dimension The dimension (starting from 0) of the
