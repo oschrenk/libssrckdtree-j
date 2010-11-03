@@ -1,9 +1,9 @@
-[EMMA v2.0.4217 report, generated Sat Mar 06 15:44:05 EST 2010]
+[EMMA v2.0.4217 report, generated Wed Mar 10 00:15:37 EST 2010]
 -------------------------------------------------------------------------------
 OVERALL COVERAGE SUMMARY:
 
 [class, %]	[method, %]	[block, %]	[line, %]	[name]
-94%  (16/17)!	74%  (81/110)	72%  (1597/2203)!	72%  (343.1/476)!	all classes
+94%  (16/17)!	74%  (81/110)	73%  (1610/2216)!	72%  (345.1/478)!	all classes
 
 OVERALL STATS SUMMARY:
 
@@ -11,10 +11,10 @@ total packages:	1
 total classes:	17
 total methods:	110
 total executable files:	4
-total executable lines:	476
+total executable lines:	478
 
 COVERAGE BREAKDOWN BY PACKAGE:
 
 [class, %]	[method, %]	[block, %]	[line, %]	[name]
-94%  (16/17)!	74%  (81/110)	72%  (1597/2203)!	72%  (343.1/476)!	com.savarese.spatial
+94%  (16/17)!	74%  (81/110)	73%  (1610/2216)!	72%  (345.1/478)!	com.savarese.spatial
 -------------------------------------------------------------------------------

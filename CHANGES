@@ -1,3 +1,9 @@
+Release Notes - libssrckdtree-j - Version 1.0.2
+
+**Defect
+    * [No Issue] - k-nearest neighbors search works for k > 1 but
+                   sometimes produces incorrect result for k = 1
+
 Release Notes - libssrckdtree-j - Version 1.0.1
 
 **New Feature

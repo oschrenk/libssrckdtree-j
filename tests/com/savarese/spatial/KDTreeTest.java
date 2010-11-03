@@ -38,7 +38,7 @@ public class KDTreeTest extends RangeSearchTreeTestCase<Integer> {
   }
 
   public Integer getMinCoord() {
-    return 0;
+    return -16384;
   }
 
   public int getNumPoints() {

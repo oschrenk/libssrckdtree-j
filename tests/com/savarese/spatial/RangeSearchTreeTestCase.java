@@ -324,5 +324,40 @@ public abstract class RangeSearchTreeTestCase<Coord extends Number & Comparable<
     assertNotNull(n);
     assertEquals(1, n.length);
     assertEquals(p, n[0].getNeighbor().getKey());
+
+    // This should be a separate regression test.  It catches the bug
+    // whereby nearest neighbors tests for k = 1 would produce an
+    // incorrect result when k > 2 would be correct.
+    tree.clear();
+
+    GenericPoint data[] = {
+      new GenericPoint<Coord>(newCoord(0), newCoord(0)),
+      new GenericPoint<Coord>(newCoord(3), newCoord(1)),
+      new GenericPoint<Coord>(newCoord(4), newCoord(2)),
+      new GenericPoint<Coord>(newCoord(1), newCoord(1)),
+      new GenericPoint<Coord>(newCoord(0), newCoord(1)),
+      new GenericPoint<Coord>(newCoord(5), newCoord(5))
+    };
+
+    for(int i = 0; i < data.length; ++i) {
+      tree.put(data[i], data[i]);
+    }
+
+    final GenericPoint<Coord> q2 =
+      new GenericPoint<Coord>(newCoord(-1), newCoord(-1));
+    final GenericPoint<Coord> p2 =
+      new GenericPoint<Coord>(newCoord(0), newCoord(0));
+
+    n = nn.get(tree, q2, 2);
+
+    assertNotNull(n);
+    assertEquals(2, n.length);
+    assertEquals(p2, n[0].getNeighbor().getKey());
+
+    n = nn.get(tree, q2, 1);
+
+    assertNotNull(n);
+    assertEquals(1, n.length);
+    assertEquals(p2, n[0].getNeighbor().getKey());
   }
 }

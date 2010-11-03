@@ -144,6 +144,9 @@ public class NearestNeighbors<Coord extends Number & Comparable<? super Coord>,
         __minDistance = __pq.peek().getDistance2();
       } else {
         __pq.add(new NNEntry(d2, node));
+        if(__pq.size() == __numNeighbors) {
+          __minDistance = __pq.peek().getDistance2();
+        }
       }
     }
 
