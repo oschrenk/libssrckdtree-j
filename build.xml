@@ -1,0 +1,380 @@
+<?xml version="1.0"?>
+<!DOCTYPE project [
+  <!ENTITY jarmanifest '
+          <manifest>
+            <section name="com/savarese/spatial">
+             <attribute name="Specification-Title"
+                     value="${name}" />
+             <attribute name="Specification-Version"
+                     value="${version}" />
+             <attribute name="Specification-Vendor"
+                     value="${company.name}" />
+             <attribute name="Implementation-Title"
+                     value="com.savarese.spatial" />
+             <attribute name="Implementation-Version"
+                     value="${version} ${DATE}" />
+             <attribute name="Implementation-Vendor"
+                     value="${company.name}" />
+             <attribute name="Implementation-Vendor-Id"
+                     value="${company.id}" />
+            </section>
+           </manifest>'
+  >
+]>
+<!--
+
+  Copyright 2004 Daniel F. Savarese
+  Copyright 2006-2009 Savarese Software Research Corporation
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+      http://www.savarese.com/software/ApacheLicense-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+Notes:
+   This is a build file for use with the Apache Ant build tool.
+
+Prerequisites:
+
+   jakarta-ant from http://ant.apache.org/
+         junit from http://www.junit.org/
+
+Build Instructions:
+   To build, run
+
+   ant <target>
+
+   in the directory where this file is located with the target you want.
+
+Available targets (default == compile):
+ all                   Builds classes, tests, demos, and javadocs.
+
+ clean                 Removes build artifacts except for javadocs.
+ compile               Compiles only the classes.
+ distclean             Removes build artifacts, javadocs, and packaging.
+
+ jar                   Compiles the source directory and creates a  .jar file
+ javadocs              Creates the API documentation.
+
+ package               Packages up source into self-contained distribution.
+ package-prepare       Prepares bin and lib directories for packaging.
+ prepare               Creates build directories.
+
+ tests.run             Runs all tests and reports.
+ tests.unit.compile    Compiles the unit tests.
+ tests.unit.run        Runs the unit tests.
+ tests.coverage.run    Runs code coverage and unit tests.
+
+Run ant -projecthelp for complete list of targets with descriptions.
+-->
+
+<project default="tests.run">
+
+  <!-- Allow properties to be overridden. -->
+  <property file="${user.home}/.ant.properties"/>
+  <property file="dev.properties"/>
+  <property file="build.properties"/>
+
+  <!-- Define class paths. -->
+
+  <path id="emma.class.path" >
+    <pathelement location="${classpath.emma}"/>
+    <pathelement location="${classpath.emma.anttask}"/>
+  </path>
+
+  <path id="compile.class.path">
+    <pathelement location="${build.dest.java}"/>
+  </path>
+
+  <path id="tests.class.path">
+    <path refid="compile.class.path"/>
+    <path refid="emma.class.path"/>
+    <pathelement location="${classpath.junit}"/>
+  </path>
+
+  <!-- Define tasks. -->
+
+  <available resource="emma_ant.properties" classpathref="emma.class.path"
+             property="emma.present"/>
+
+  <target name="taskdefEMMA" if="emma.present">
+    <taskdef resource="emma_ant.properties" classpathref="emma.class.path" />
+  </target>
+
+  <target name="defineTasks" depends="taskdefEMMA"/>
+
+  <!-- all target.  Builds classes, tests, and demos. -->
+
+  <target name="all"
+   depends="tests.coverage.run,javadocs,javadocs.tests,jar"
+          description="Builds classes, tests, demos, and javadocs."/>
+
+  <!-- prepare target.  Creates build directory. -->
+
+  <target name="prepare" depends="defineTasks"
+          description="Creates build directories.">
+      <tstamp>
+        <format property="DATE" pattern="yyyy-MM-dd hh:mm:ss" />
+      </tstamp>
+      <copy todir="${build.dest.java}/META-INF">
+        <fileset dir="${top.dir}">
+          <include name="LICENSE"/>
+        </fileset>
+      </copy>
+      <mkdir dir="${build.dest.java}"/>
+      <mkdir dir="${build.dest.tests}"/>
+      <mkdir dir="${build.dest.coverage}"/>
+      <mkdir dir="${lib.dir}"/>
+  </target>
+
+  <!-- compile target.  Compiles the classes only -->
+
+  <target name="compile" depends="prepare"
+          description="Compiles only the classes.">
+    <javac srcdir="${build.src.java}"
+           destdir="${build.dest.java}"
+           debug="${javac.debug}"
+           deprecation="${javac.deprecation}"
+           optimize="${javac.optimize}"
+           source="${javac.source}"
+           target="${javac.target}"
+           classpathref="compile.class.path">
+      <compilerarg line="${javac.args}"/>
+    </javac>
+  </target>
+
+  <!-- jar target.  Compiles the source directory and creates a .jar file -->
+
+  <target name="jar" depends="compile"
+          description="Compiles the source directory and creates .jar files.">
+    <jar jarfile="${lib.dir}/${jar.name}"
+         basedir="${build.dest.java}"
+         includes="com/**,META-INF/**"
+         excludes="**/package.html,**/overview.html">
+        &jarmanifest;
+    </jar>
+  </target>
+
+  <!-- tests.unit.compile target.  Compiles the unit tests. -->
+
+  <target name="tests.unit.compile" depends="compile"
+          description="Compiles the unit tests.">
+    <javac srcdir="${build.src.tests.java}"
+           destdir="${build.dest.tests}"
+           debug="${javac.debug}"
+           deprecation="${javac.deprecation}"
+           optimize="${javac.optimize}"
+           source="${javac.source}"
+           target="${javac.target}"
+           classpathref="tests.class.path">
+      <compilerarg line="${javac.args}"/>
+    </javac>
+  </target>
+
+  <!-- tests.unit.run target.  Runs the unit tests. -->
+
+  <target name="tests.unit.run" depends="tests.unit.compile"
+          description="Runs the unit tests.">
+    <junit fork="true"
+           haltonfailure="false"
+           printsummary="true">
+      <classpath>
+        <pathelement location="${build.dest.tests}"/>
+        <pathelement location="${build.dest.coverage}"/>
+        <path refid="tests.class.path"/>
+      </classpath>
+      <jvmarg
+       value="-Demma.coverage.out.file=${build.dest.coverage}/coverage.emma"/>
+      <jvmarg value="-Demma.coverage.out.merge=true" />
+      <formatter type="xml"/>
+      <batchtest todir="${build.dest.tests}">
+        <fileset dir="${build.dest.tests}">
+          <include name="**/*Test.class"/>
+        </fileset>
+      </batchtest>
+    </junit>
+    <junitreport todir="${build.dest.tests}">
+      <fileset dir="${build.dest.tests}">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report format="noframes" todir="${build.dest.tests}"/>
+    </junitreport>
+  </target>
+
+  <!-- tests.coverage.run target.  Runs code coverage and unit tests. -->
+
+  <target name="tests.coverage.run" depends="tests.unit.compile"
+          description="Runs code coverage and unit tests.">
+    <!--
+      Incremental instrumentation isn't working, so delete
+      instrumented files first.
+    -->
+    <delete>
+        <fileset dir="${build.dest.coverage}">
+          <include name="**/*.class"/>
+        </fileset>
+    </delete>
+    <emma enabled="true">
+      <instr mode="copy"
+             instrpath="${build.dest.java}"
+             destdir="${build.dest.coverage}"
+             metadatafile="${build.dest.coverage}/metadata.emma"
+             merge="true"/>
+    </emma>
+    <antcall target="tests.unit.run"/>
+    <emma enabled="true">
+      <report sourcepath="${build.src.java}">
+        <fileset dir="${build.dest.coverage}">
+          <include name="*.emma"/>
+        </fileset>
+        <txt outfile="${build.dest.coverage.doc}/coverage.txt"/>
+        <html outfile="${build.dest.coverage.doc}/coverage.html"/>
+      </report>
+    </emma>
+
+    <!-- Kluge to remove external links in report. -->
+    <exec executable="sh" dir="${build.dest.coverage.doc}">
+      <arg line="-c &quot;perl -pi -e 's#&lt;A HREF=[^&gt;]+sourceforge.net[^&gt;]+&gt;([^&lt;]+)&lt;/A&gt;#$1#g; s#&gt;[^&lt;]+Roubtsov&lt;/TD&gt;#&gt;&lt;/TD&gt;#g; s/EMMA[^C]+Coverage[^R]+Report(?:[^(&lt;]+\([^)]+\))?/libssrckdtree-j ${version} Java Unit Test Coverage/g;' *.html */*.html&quot;"/>
+    </exec>
+    <replace dir="${build.dest.coverage.doc}">
+      <replacefilter
+           token="&lt;BODY&gt;"
+           value="&lt;BODY&gt;${logo2.html}"/>
+      <replacefilter
+           token="&lt;/BODY&gt;"
+           value="${logo2.html}&lt;/BODY&gt;"/>
+       <include name="coverage.html"/>
+    </replace>
+    <replace dir="${build.dest.coverage.doc}/_files">
+      <replacefilter
+           token="&lt;BODY&gt;"
+           value="&lt;BODY&gt;${logo3.html}"/>
+      <replacefilter
+           token="&lt;/BODY&gt;"
+           value="${logo3.html}&lt;/BODY&gt;"/>
+       <include name="*.html"/>
+    </replace>
+
+  </target>
+
+  <!-- tests.run target.  Runs all tests and reports. -->
+
+  <target name="tests.run" depends="tests.coverage.run"
+          description="Runs all tests and reports."/>
+
+  <!-- javadocs target.  Creates the API documentation -->    
+
+  <target name="builddocs" depends="prepare" description="Internal target.">
+    <javadoc sourcepath="${javadoc.src}"
+             destdir="${javadoc.dest}"
+             source="${javac.source}"
+             author="true"
+             version="true"
+             windowtitle="${title}"
+             doctitle="${title}"
+             header="&lt;a href=&apos;http://www.savarese.com/&apos; target=_top&gt;&lt;img src=&apos;{@docroot}/${logo.dir}/logoSmall.jpg&apos; alt=&apos;Savarese Software Research Corporation&apos; width=144 height=36 align=center border=0 hspace=1 vspace=1&gt;&lt;/a&gt;"
+             bottom="${copyright.message}">
+      <classpath refid="compile.class.path"/>
+      <package name="com.savarese.spatial.*"/>
+    </javadoc>
+    <!-- Kluge to fix bad image src. -->
+    <replace dir="${javadoc.dest}" token="src='/.." value="src='..">
+       <include name="**/*.html"/>
+    </replace>
+  </target>
+
+  <target name="javadocs" depends="prepare"
+          description="Creates the API documentation.">
+    <antcall target="builddocs">
+      <param name="javadoc.src" value="${build.src.java}"/>
+      <param name="javadoc.dest" value="${build.dest.javadoc}"/>
+      <param name="logo.dir" value="../images"/>
+      <param name="title" value="${name} ${version} Java API"/>
+    </antcall>
+  </target>
+
+  <target name="javadocs.tests" depends="prepare"
+          description="Creates the API documentation for unit tests.">
+    <antcall target="builddocs">
+      <param name="javadoc.src" value="${build.src.tests.java}"/>
+      <param name="javadoc.dest" value="${build.dest.javadoc.tests}"/>
+      <param name="logo.dir" value="../../images"/>
+      <param name="title"
+             value="${name} ${version} Java Unit Test Documentation"/>
+    </antcall>
+  </target>
+
+  <!-- Makes an attempt to clean up a little. -->
+
+  <target name="clean"
+          description="Removes build artifacts except for javadocs.">
+    <delete dir="${build.dest.java}"/>
+    <delete dir="${build.dest.tests}"/>
+    <delete dir="${build.dest.coverage}"/>
+    <delete file="${jar.name}"/>
+  </target>
+
+  <!-- distclean target.  Cleans up for developer, including packaging. -->
+  <target name="distclean" depends="clean"
+          description="Removes build artifacts, javadocs, and packaging.">
+    <delete dir="${build.dest.javadoc}"/>
+    <delete dir="${build.dest.javadoc.tests}"/>
+    <delete dir="${build.dest.coverage.doc}"/>
+    <delete dir="${top.dir}/${project.name}"/>
+    <delete file="${tarball.src}"/>
+    <delete file="${tarball.bin}"/>
+    <delete dir="${bin.dir}"/>
+    <delete dir="${lib.dir}"/>
+  </target>
+
+  <!-- package-prepare target.  Prepares bin and lib directories for
+       packaging."
+   -->
+
+  <target name="package-prepare"
+          description="Prepares bin and lib directories for packaging.">
+  <!--
+    <mkdir dir="${lib.dir}"/>
+    <copy file="${classpath.junit}"           todir="${lib.dir}"/>
+   -->
+  </target>
+
+  <!-- package target.  Packages up self-contained source for distribution. -->
+
+  <target name="package" depends="distclean,package-prepare,all"
+          description="Packages up source into self-contained distribution.">
+
+    <mkdir dir="${project.name}"/>
+    <copy todir="${project.name}">
+      <fileset dir="${top.dir}" includesfile="pkg.src.inc"/>
+    </copy>
+    <chmod dir="${project.name}" perm="ugo+r" includes="**/**"/>
+
+    <exec executable="tar" dir="${top.dir}">
+      <arg line="jcf ${tarball.src} ${project.name}"/>
+    </exec>
+
+    <delete dir="${project.name}"/>
+<!--
+    <mkdir dir="${project.name}"/>
+    <copy todir="${project.name}">
+      <fileset dir="${top.dir}" includesfile="pkg.bin.inc"/>
+    </copy>
+    <chmod dir="${project.name}" perm="ugo+r" includes="**/**"/>
+
+    <exec executable="tar" dir="${top.dir}">
+      <arg line="zcf ${tarball.bin} ${project.name}"/>
+    </exec>
+
+    <delete dir="${project.name}"/>
+-->
+  </target>
+
+</project>

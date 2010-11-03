@@ -1,0 +1,58 @@
+=====
+ABOUT
+=====
+
+libssrckdtree-j is a Java class library of spatial data structures,
+currently containing only an implementation of a kd-tree.  Additional
+spatial data structures may be added in the future.
+
+============
+REQUIREMENTS
+============
+
+libssrckdtree-j requires J2SE 1.5 or greater to compile and run.
+J2SE 1.5 is required because the code uses Java generics.
+
+To run the unit tests, you need junit (http://www.junit.org/).
+
+To generate test code coverage data, you need EMMA
+(http://emma.sourceforge.net/).
+
+=========
+COMPILING
+=========
+
+The source code requires Apache Ant (http://ant.apache.org/) to compile.
+
+  ant -projecthelp
+
+will list all build targets in build.xml.  The files in the source tree
+are:
+
+  java/   Java source code
+  tests/  Java unit tests
+
+When you compile the source with
+
+  ant jar
+
+the following jar file will be created and placed in the lib/ directory:
+
+  libssrckdtree-j-version.jar
+
+=========
+LICENSING
+=========
+
+libssrckdtree-j is Copyright by Savarese Software Research Corporation and
+Daniel F. Savarese and licensed under the Apache License 2.0 as
+described in the files:
+
+  LICENSE
+  NOTICE
+
+=======
+CONTACT
+=======
+
+To contact the author(s) see http://www.savarese.com/contact.html
