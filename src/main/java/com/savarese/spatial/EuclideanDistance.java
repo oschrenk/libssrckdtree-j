@@ -20,38 +20,40 @@ package com.savarese.spatial;
  * The EuclideanDistance class determines the distance between two
  * points in a Euclidean space.
  */
-public class EuclideanDistance<Coord extends Number & Comparable<? super Coord>,
-                               P extends Point<Coord>>
-  implements Distance<Coord, P>
-{
-  /**
-   * Returns the euclidean distance between two points.
-   *
-   * @param from The first end point.
-   * @param to The second end point.
-   * @return The distance between from and to.
-   */
-  public double distance(P from, P to) {
-    return StrictMath.sqrt(distance2(from, to));
-  }
+public class EuclideanDistance<Coord extends Number & Comparable<? super Coord>, P extends Point<Coord>>
+		implements Distance<Coord, P> {
+	/**
+	 * Returns the euclidean distance between two points.
+	 * 
+	 * @param from
+	 *            The first end point.
+	 * @param to
+	 *            The second end point.
+	 * @return The distance between from and to.
+	 */
+	public double distance(P from, P to) {
+		return StrictMath.sqrt(distanceSquared(from, to));
+	}
 
-  /**
-   * Returns the square of the euclidean distance between two points.
-   *
-   * @param from The first end point.
-   * @param to The second end point.
-   * @return The square of the euclidean distance between from and to.
-   */
-  public double distance2(P from, P to) {
-    double d = 0;
-    final int imax = from.getDimensions();
+	/**
+	 * Returns the square of the euclidean distance between two points.
+	 * 
+	 * @param from
+	 *            The first end point.
+	 * @param to
+	 *            The second end point.
+	 * @return The square of the euclidean distance between from and to.
+	 */
+	public double distanceSquared(P from, P to) {
+		double d = 0;
+		final int imax = from.getDimensions();
 
-    for(int i = 0; i < imax; ++i) {
-      double diff = (to.getCoord(i).doubleValue() -
-                     from.getCoord(i).doubleValue());
-      d+=(diff*diff);
-    }
+		for (int i = 0; i < imax; ++i) {
+			double diff = (to.getCoord(i).doubleValue() -
+						from.getCoord(i).doubleValue());
+			d += (diff * diff);
+		}
 
-    return d;
-  }
+		return d;
+	}
 }

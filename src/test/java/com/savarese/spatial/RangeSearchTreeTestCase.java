@@ -17,347 +17,353 @@
 
 package com.savarese.spatial;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
-import junit.framework.*;
+import junit.framework.TestCase;
 
 /**
  * RangeSearchTreeTestCase tests the KDTree class.
  */
 public abstract class RangeSearchTreeTestCase<Coord extends Number & Comparable<? super Coord>>
-  extends TestCase
-{
-
-  private Set<GenericPoint<Coord>> __points;
-  protected RangeSearchTree<Coord, GenericPoint<Coord>, GenericPoint<Coord>>
-    _tree_;
-
-  /**
-   * Creates a new RangeSearchTree instance for testing.
-   *
-   * @return A new RangeSearchTree instance for testing.
-   */
-  protected abstract
-    RangeSearchTree<Coord, GenericPoint<Coord>, GenericPoint<Coord>>
-               _newTreeFixture_();
-
-  /**
-   * Instantiates {@link #_tree_} to use as a fixture for tests.
-   */
-  protected void setUp() {
-    _tree_ = _newTreeFixture_();
-  }
-
-  /**
-   * Clears the tree fixture, removing all its contents so
-   * that a subsequent test will not be affected by the previous one.
-   */
-  protected void tearDown() {
-    _tree_.clear();
-  }
-
-  /**
-   * Inserts a set of points into a map.
-   *
-   * @param map The map to fill with points.
-   */
-  protected <M extends Map<GenericPoint<Coord>, GenericPoint<Coord>>>
-    void _fillMap_(M map)
-  {
-    for(GenericPoint<Coord> point : __points)
-      map.put(point, point);
-  }
-
-  public RangeSearchTreeTestCase() {
-    __points = new HashSet<GenericPoint<Coord>>();
-
-    Random random = new Random();
-
-    for(int i = 0; i < getNumPoints(); ++i) {
-      int x = getMinCoord().intValue() +
-        random.nextInt(getMaxCoord().intValue() - getMinCoord().intValue());
-      int y = getMinCoord().intValue() +
-        random.nextInt(getMaxCoord().intValue() - getMinCoord().intValue());
-      __points.add(new GenericPoint<Coord>(newCoord(x), newCoord(y)));
-    }
-  }
-
-  public abstract Coord newCoord(int val);
-
-  public abstract Coord getMaxCoord();
-
-  public abstract Coord getMinCoord();
-
-  public abstract int getNumPoints();
+		extends TestCase {
+
+	private Set<GenericPoint<Coord>> points;
+	protected RangeSearchTree<Coord, GenericPoint<Coord>, GenericPoint<Coord>> tree;
+
+	/**
+	 * Creates a new RangeSearchTree instance for testing.
+	 * 
+	 * @return A new RangeSearchTree instance for testing.
+	 */
+	protected abstract RangeSearchTree<Coord, GenericPoint<Coord>, GenericPoint<Coord>>
+				newTreeFixture();
+
+	/**
+	 * Instantiates {@link #tree} to use as a fixture for tests.
+	 */
+	protected void setUp() {
+		tree = newTreeFixture();
+	}
+
+	/**
+	 * Clears the tree fixture, removing all its contents so
+	 * that a subsequent test will not be affected by the previous one.
+	 */
+	protected void tearDown() {
+		tree.clear();
+	}
+
+	/**
+	 * Inserts a set of points into a map.
+	 * 
+	 * @param map
+	 *            The map to fill with points.
+	 */
+	protected <M extends Map<GenericPoint<Coord>, GenericPoint<Coord>>>
+			void fillMap(M map) {
+		for (GenericPoint<Coord> point : points)
+			map.put(point, point);
+	}
+
+	public RangeSearchTreeTestCase() {
+		points = new HashSet<GenericPoint<Coord>>();
+
+		Random random = new Random();
+
+		for (int i = 0; i < getNumPoints(); ++i) {
+			int x = getMinCoord().intValue() +
+					random.nextInt(getMaxCoord().intValue() - getMinCoord().intValue());
+			int y = getMinCoord().intValue() +
+					random.nextInt(getMaxCoord().intValue() - getMinCoord().intValue());
+			points.add(new GenericPoint<Coord>(newCoord(x), newCoord(y)));
+		}
+	}
+
+	public abstract Coord newCoord(int val);
+
+	public abstract Coord getMaxCoord();
+
+	public abstract Coord getMinCoord();
 
-  public void testSize() {
-    _fillMap_(_tree_);
-    assertEquals(__points.size(), _tree_.size());
-  }
-
-  public void testClear() {
-    _fillMap_(_tree_);
+	public abstract int getNumPoints();
 
-    assertTrue(_tree_.size() > 0);
-
-    _tree_.clear();
+	public void testSize() {
+		fillMap(tree);
+		assertEquals(points.size(), tree.size());
+	}
 
-    assertTrue(_tree_.isEmpty());
-    assertEquals(0, _tree_.size());
-  }
+	public void testClear() {
+		fillMap(tree);
 
-  public void testContainsKey() {
-    _fillMap_(_tree_);
-
-    for(GenericPoint<Coord> point : __points)
-      assertTrue(_tree_.containsKey(point));
-  }
-
-  public void testContainsValue() {
-    _fillMap_(_tree_);
-
-    int i = 5;
-    for(GenericPoint<Coord> point : __points) {
-      assertTrue(_tree_.containsValue(point));
-      if(--i <= 0)
-        break;
-    }
-
-    assertFalse(_tree_.containsValue(null));
-    _tree_.put(new GenericPoint<Coord>(newCoord(0), newCoord(0)), null);
-    assertTrue(_tree_.containsValue(null));
-  }
+		assertTrue(tree.size() > 0);
 
-  public void testGet() {
-    _fillMap_(_tree_);
+		tree.clear();
 
-    for(GenericPoint<Coord> point : __points) {
-      GenericPoint<Coord> value = _tree_.get(point);
+		assertTrue(tree.isEmpty());
+		assertEquals(0, tree.size());
+	}
 
-      assertNotNull(value);
-      assertEquals(point, value);
-    }
-  }
+	public void testContainsKey() {
+		fillMap(tree);
 
-  public void testRemove() {
-    _fillMap_(_tree_);
+		for (GenericPoint<Coord> point : points)
+			assertTrue(tree.containsKey(point));
+	}
 
-    for(GenericPoint<Coord> point : __points)
-      assertEquals(point, _tree_.remove(point));
+	public void testContainsValue() {
+		fillMap(tree);
 
-    assertTrue(_tree_.isEmpty());
-    assertEquals(0, _tree_.size());
+		int i = 5;
+		for (GenericPoint<Coord> point : points) {
+			assertTrue(tree.containsValue(point));
+			if (--i <= 0)
+				break;
+		}
 
-    for(GenericPoint<Coord> point : __points)
-      assertNull(_tree_.remove(point));
-  }
+		assertFalse(tree.containsValue(null));
+		tree.put(new GenericPoint<Coord>(newCoord(0), newCoord(0)), null);
+		assertTrue(tree.containsValue(null));
+	}
 
-  public void testPutAll() {
-    HashMap<GenericPoint<Coord>, GenericPoint<Coord>> map =
-      new HashMap<GenericPoint<Coord>, GenericPoint<Coord>>();
+	public void testGet() {
+		fillMap(tree);
 
-    _fillMap_(map);
-    _tree_.putAll(map);
+		for (GenericPoint<Coord> point : points) {
+			GenericPoint<Coord> value = tree.get(point);
 
-    for(GenericPoint<Coord> point : __points) {
-      GenericPoint<Coord> value = _tree_.get(point);
+			assertNotNull(value);
+			assertEquals(point, value);
+		}
+	}
 
-      assertNotNull(value);
-      assertEquals(point, value);
-    }
-  }
+	public void testRemove() {
+		fillMap(tree);
 
-  public void testEntrySet() {
-    _fillMap_(_tree_);
+		for (GenericPoint<Coord> point : points)
+			assertEquals(point, tree.remove(point));
 
-    Set<Map.Entry<GenericPoint<Coord>,GenericPoint<Coord>>> set = 
-      _tree_.entrySet();
+		assertTrue(tree.isEmpty());
+		assertEquals(0, tree.size());
 
-    assertEquals(_tree_.size(), set.size());
+		for (GenericPoint<Coord> point : points)
+			assertNull(tree.remove(point));
+	}
 
-    int size = 0;
-    for(Map.Entry<GenericPoint<Coord>,GenericPoint<Coord>> e : set) {
-      ++size;
-      assertEquals(_tree_.get(e.getKey()), e.getValue());
-    }
+	public void testPutAll() {
+		HashMap<GenericPoint<Coord>, GenericPoint<Coord>> map =
+				new HashMap<GenericPoint<Coord>, GenericPoint<Coord>>();
 
-    assertEquals(_tree_.size(), size);
-  }
+		fillMap(map);
+		tree.putAll(map);
 
-  public void testKeySet() {
-    _fillMap_(_tree_);
+		for (GenericPoint<Coord> point : points) {
+			GenericPoint<Coord> value = tree.get(point);
 
-    Set<GenericPoint<Coord>> set = _tree_.keySet();
+			assertNotNull(value);
+			assertEquals(point, value);
+		}
+	}
 
-    assertEquals(_tree_.size(), set.size());
+	public void testEntrySet() {
+		fillMap(tree);
 
-    int size = 0;
-    for(GenericPoint<Coord> key : set) {
-      ++size;
-      assertTrue(_tree_.containsKey(key));
-    }
+		Set<Map.Entry<GenericPoint<Coord>, GenericPoint<Coord>>> set =
+				tree.entrySet();
 
-    assertEquals(_tree_.size(), size);
-  }
+		assertEquals(tree.size(), set.size());
 
-  public void testValues() {
-    HashMap<GenericPoint<Coord>, GenericPoint<Coord>> map =
-      new HashMap<GenericPoint<Coord>, GenericPoint<Coord>>();
+		int size = 0;
+		for (Map.Entry<GenericPoint<Coord>, GenericPoint<Coord>> e : set) {
+			++size;
+			assertEquals(tree.get(e.getKey()), e.getValue());
+		}
 
-    int i = 10;
-    for(GenericPoint<Coord> p : __points) {
-      map.put(p, p);
-      if(--i <= 0)
-        break;
-    }
+		assertEquals(tree.size(), size);
+	}
 
-    _tree_.putAll(map);
+	public void testKeySet() {
+		fillMap(tree);
 
-    assertTrue(_tree_.values().containsAll(map.values()));
-    assertTrue(map.values().containsAll(_tree_.values()));
-  }
+		Set<GenericPoint<Coord>> set = tree.keySet();
 
-  public void testIterator() {
-    _fillMap_(_tree_);
+		assertEquals(tree.size(), set.size());
 
-    Iterator<Map.Entry<GenericPoint<Coord>,GenericPoint<Coord>>> range =
-      _tree_.iterator(new GenericPoint<Coord>(getMinCoord(), getMinCoord()),
-                      new GenericPoint<Coord>(getMaxCoord(), getMaxCoord()));
-    int size = 0;
+		int size = 0;
+		for (GenericPoint<Coord> key : set) {
+			++size;
+			assertTrue(tree.containsKey(key));
+		}
 
-    while(range.hasNext()) {
-      Map.Entry<GenericPoint<Coord>,GenericPoint<Coord>> e = range.next();
-      assertEquals(_tree_.get(e.getKey()), e.getValue());
-      ++size;
-    }
+		assertEquals(tree.size(), size);
+	}
 
-    assertEquals(_tree_.size(), size);
-  }
+	public void testValues() {
+		HashMap<GenericPoint<Coord>, GenericPoint<Coord>> map =
+				new HashMap<GenericPoint<Coord>, GenericPoint<Coord>>();
 
-  public void testEquals() {
-    _fillMap_(_tree_);
+		int i = 10;
+		for (GenericPoint<Coord> p : points) {
+			map.put(p, p);
+			if (--i <= 0)
+				break;
+		}
 
-    Map<GenericPoint<Coord>, GenericPoint<Coord>> map =
-      new HashMap<GenericPoint<Coord>, GenericPoint<Coord>>();
+		tree.putAll(map);
 
-    _fillMap_(map);
+		assertTrue(tree.values().containsAll(map.values()));
+		assertTrue(map.values().containsAll(tree.values()));
+	}
 
-    assertEquals(map, _tree_);
-  }
+	public void testIterator() {
+		fillMap(tree);
 
-  public void testNearestNeighbors() {
-    NearestNeighbors<Coord, GenericPoint<Coord>, GenericPoint<Coord>> nn =
-      new NearestNeighbors<Coord, GenericPoint<Coord>, GenericPoint<Coord>>();
-    final GenericPoint<Coord> query =
-      new GenericPoint<Coord>(newCoord(getMaxCoord().intValue() / 2),
-                              newCoord(getMaxCoord().intValue() / 2));
-    final EuclideanDistance<Coord, GenericPoint<Coord>> d =
-      new EuclideanDistance<Coord, GenericPoint<Coord>>();
+		Iterator<Map.Entry<GenericPoint<Coord>, GenericPoint<Coord>>> range =
+				tree.iterator(new GenericPoint<Coord>(getMinCoord(), getMinCoord()),
+						new GenericPoint<Coord>(getMaxCoord(), getMaxCoord()));
+		int size = 0;
 
-    KDTree<Coord, GenericPoint<Coord>, GenericPoint<Coord>> tree =
-      (KDTree<Coord, GenericPoint<Coord>, GenericPoint<Coord>>)_tree_;
+		while (range.hasNext()) {
+			Map.Entry<GenericPoint<Coord>, GenericPoint<Coord>> e = range.next();
+			assertEquals(tree.get(e.getKey()), e.getValue());
+			++size;
+		}
 
-    _fillMap_(tree);
+		assertEquals(tree.size(), size);
+	}
 
-    ArrayList<GenericPoint<Coord>> sortedPoints = new ArrayList(__points);
+	public void testEquals() {
+		fillMap(tree);
 
-    Collections.sort(sortedPoints, new Comparator<GenericPoint<Coord>>() {
-        public int compare(GenericPoint<Coord> o1, GenericPoint<Coord> o2) {
-          double d1 = d.distance2(query, o1);
-          double d2 = d.distance2(query, o2);
-          if(d1 < d2)
-            return -1;
-          else if(d1 > d2)
-            return 1;
-          return 0;
-        }
-        public boolean equals(Object obj) {
-          return (obj == this);
-        }
-      });
+		Map<GenericPoint<Coord>, GenericPoint<Coord>> map =
+				new HashMap<GenericPoint<Coord>, GenericPoint<Coord>>();
 
-    NearestNeighbors.Entry<Coord,GenericPoint<Coord>,GenericPoint<Coord>>[] n;
+		fillMap(map);
 
-    for(int i = 1; i < 11; ++i) {
-      n = nn.get(tree, query, i, false);
+		assertEquals(map, tree);
+	}
 
-      assertNotNull(n);
-      assertEquals(i, n.length);
+	public void testNearestNeighbors() {
+		NearestNeighbors<Coord, GenericPoint<Coord>, GenericPoint<Coord>> nn =
+				new NearestNeighbors<Coord, GenericPoint<Coord>, GenericPoint<Coord>>();
+		final GenericPoint<Coord> query =
+				new GenericPoint<Coord>(newCoord(getMaxCoord().intValue() / 2),
+								newCoord(getMaxCoord().intValue() / 2));
+		final EuclideanDistance<Coord, GenericPoint<Coord>> d =
+				new EuclideanDistance<Coord, GenericPoint<Coord>>();
 
-      for(int j = 0; j < n.length; ++j) {
-        assertEquals(sortedPoints.get(j), n[j].getNeighbor().getKey());
-      }
-    }
+		KDTree<Coord, GenericPoint<Coord>, GenericPoint<Coord>> tree =
+				(KDTree<Coord, GenericPoint<Coord>, GenericPoint<Coord>>) this.tree;
 
-    for(int i = 1; i < 11; ++i) {
-      int j = 0;
-      n = nn.get(tree, query, i);
+		fillMap(tree);
 
-      assertNotNull(n);
-      assertEquals(i, n.length);
+		ArrayList<GenericPoint<Coord>> sortedPoints = new ArrayList<GenericPoint<Coord>>(points);
 
-      if(sortedPoints.get(0).equals(query)) {
-        ++j;
-      }
+		Collections.sort(sortedPoints, new Comparator<GenericPoint<Coord>>() {
+			public int compare(GenericPoint<Coord> o1, GenericPoint<Coord> o2) {
+				double d1 = d.distanceSquared(query, o1);
+				double d2 = d.distanceSquared(query, o2);
+				if (d1 < d2)
+					return -1;
+				else if (d1 > d2)
+					return 1;
+				return 0;
+			}
 
-      for(int k = 0; k < n.length; ++k, ++j) {
-        assertEquals(sortedPoints.get(j), n[k].getNeighbor().getKey());
-      }
-    }
+			public boolean equals(Object obj) {
+				return (obj == this);
+			}
+		});
 
-    final GenericPoint<Coord> q =
-      new GenericPoint<Coord>(newCoord(1), newCoord(1));
-    final GenericPoint<Coord> p =
-      new GenericPoint<Coord>(newCoord(2), newCoord(2));
-    tree.put(p, p);
+		Entry<Coord, GenericPoint<Coord>, GenericPoint<Coord>>[] n;
 
-    n = nn.get(tree, q, 1);
+		for (int i = 1; i < 11; ++i) {
+			n = nn.get(tree, query, i, false);
 
-    assertNotNull(n);
-    assertEquals(1, n.length);
+			assertNotNull(n);
+			assertEquals(i, n.length);
 
-    assertTrue(n[0].getNeighbor().getKey().equals(p) ||
-                 d.distance2(q, n[0].getNeighbor().getKey()) < 2);
+			for (int j = 0; j < n.length; ++j) {
+				assertEquals(sortedPoints.get(j), n[j].getNeighbor().getKey());
+			}
+		}
 
-    n = nn.get(tree, p, 1, false);
+		for (int i = 1; i < 11; ++i) {
+			int j = 0;
+			n = nn.get(tree, query, i);
 
-    assertNotNull(n);
-    assertEquals(1, n.length);
-    assertEquals(p, n[0].getNeighbor().getKey());
+			assertNotNull(n);
+			assertEquals(i, n.length);
 
-    // This should be a separate regression test.  It catches the bug
-    // whereby nearest neighbors tests for k = 1 would produce an
-    // incorrect result when k > 2 would be correct.
-    tree.clear();
+			if (sortedPoints.get(0).equals(query)) {
+				++j;
+			}
 
-    GenericPoint data[] = {
-      new GenericPoint<Coord>(newCoord(0), newCoord(0)),
-      new GenericPoint<Coord>(newCoord(3), newCoord(1)),
-      new GenericPoint<Coord>(newCoord(4), newCoord(2)),
-      new GenericPoint<Coord>(newCoord(1), newCoord(1)),
-      new GenericPoint<Coord>(newCoord(0), newCoord(1)),
-      new GenericPoint<Coord>(newCoord(5), newCoord(5))
-    };
+			for (int k = 0; k < n.length; ++k, ++j) {
+				assertEquals(sortedPoints.get(j), n[k].getNeighbor().getKey());
+			}
+		}
 
-    for(int i = 0; i < data.length; ++i) {
-      tree.put(data[i], data[i]);
-    }
+		final GenericPoint<Coord> q =
+				new GenericPoint<Coord>(newCoord(1), newCoord(1));
+		final GenericPoint<Coord> p =
+				new GenericPoint<Coord>(newCoord(2), newCoord(2));
+		tree.put(p, p);
 
-    final GenericPoint<Coord> q2 =
-      new GenericPoint<Coord>(newCoord(-1), newCoord(-1));
-    final GenericPoint<Coord> p2 =
-      new GenericPoint<Coord>(newCoord(0), newCoord(0));
+		n = nn.get(tree, q, 1);
 
-    n = nn.get(tree, q2, 2);
+		assertNotNull(n);
+		assertEquals(1, n.length);
 
-    assertNotNull(n);
-    assertEquals(2, n.length);
-    assertEquals(p2, n[0].getNeighbor().getKey());
+		assertTrue(n[0].getNeighbor().getKey().equals(p) ||
+					d.distanceSquared(q, n[0].getNeighbor().getKey()) < 2);
 
-    n = nn.get(tree, q2, 1);
+		n = nn.get(tree, p, 1, false);
 
-    assertNotNull(n);
-    assertEquals(1, n.length);
-    assertEquals(p2, n[0].getNeighbor().getKey());
-  }
+		assertNotNull(n);
+		assertEquals(1, n.length);
+		assertEquals(p, n[0].getNeighbor().getKey());
+
+		// This should be a separate regression test.  It catches the bug
+		// whereby nearest neighbors tests for k = 1 would produce an
+		// incorrect result when k > 2 would be correct.
+		tree.clear();
+
+		GenericPoint data[] = {
+				new GenericPoint<Coord>(newCoord(0), newCoord(0)),
+				new GenericPoint<Coord>(newCoord(3), newCoord(1)),
+				new GenericPoint<Coord>(newCoord(4), newCoord(2)),
+				new GenericPoint<Coord>(newCoord(1), newCoord(1)),
+				new GenericPoint<Coord>(newCoord(0), newCoord(1)),
+				new GenericPoint<Coord>(newCoord(5), newCoord(5))
+		};
+
+		for (int i = 0; i < data.length; ++i) {
+			tree.put(data[i], data[i]);
+		}
+
+		final GenericPoint<Coord> q2 =
+				new GenericPoint<Coord>(newCoord(-1), newCoord(-1));
+		final GenericPoint<Coord> p2 =
+				new GenericPoint<Coord>(newCoord(0), newCoord(0));
+
+		n = nn.get(tree, q2, 2);
+
+		assertNotNull(n);
+		assertEquals(2, n.length);
+		assertEquals(p2, n[0].getNeighbor().getKey());
+
+		n = nn.get(tree, q2, 1);
+
+		assertNotNull(n);
+		assertEquals(1, n.length);
+		assertEquals(p2, n[0].getNeighbor().getKey());
+	}
 }

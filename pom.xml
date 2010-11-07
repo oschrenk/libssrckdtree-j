@@ -4,7 +4,7 @@
 	<groupId>com.savarese</groupId>
 	<artifactId>kdtree</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.2</version>
+	<version>1.0.3-SNAPSHOT</version>
 	<name>kdtree</name>
 	<organization>
 		<name>Savarese Software Research Corporation</name>

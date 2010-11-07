@@ -17,21 +17,20 @@
 
 package com.savarese.spatial;
 
-import java.util.*;
+import java.util.Map;
 
 /**
  * OptimiizedKDTreeTest tests the KDTree class after optimization.
  */
 public class OptimizedKDTreeTest extends KDTreeTest {
 
-  protected <M extends Map<GenericPoint<Integer>, GenericPoint<Integer>>>
-    void _fillMap_(M map)
-  {
-    super._fillMap_(map);
+	protected <M extends Map<GenericPoint<Integer>, GenericPoint<Integer>>>
+			void fillMap(M map) {
+		super.fillMap(map);
 
-    Object obj = map;
+		Object obj = map;
 
-    if(obj instanceof KDTree<?,?,?>)
-      ((KDTree)obj).optimize();
-  }
+		if (obj instanceof KDTree<?, ?, ?>)
+			((KDTree) obj).optimize();
+	}
 }

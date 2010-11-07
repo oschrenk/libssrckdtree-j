@@ -20,24 +20,26 @@ package com.savarese.spatial;
  * The Distance interface encapsulates an algorithm for determining
  * the distance between two points.
  */
-public interface Distance<Coord extends Number & Comparable<? super Coord>,
-                              P extends Point<Coord>>
-{
-  /**
-   * Returns the distance between two points.
-   *
-   * @param from The first end point.
-   * @param to The second end point.
-   * @return The distance between from and to.
-   */
-  public double distance(P from, P to);
+public interface Distance<Coord extends Number & Comparable<? super Coord>, P extends Point<Coord>> {
+	/**
+	 * Returns the distance between two points.
+	 * 
+	 * @param from
+	 *            The first end point.
+	 * @param to
+	 *            The second end point.
+	 * @return The distance between from and to.
+	 */
+	public double distance(P from, P to);
 
-  /**
-   * Returns the square of the distance between two points.
-   *
-   * @param from The first end point.
-   * @param to The second end point.
-   * @return The square of the distance between from and to.
-   */
-  public double distance2(P from, P to);
+	/**
+	 * Returns the square of the distance between two points.
+	 * 
+	 * @param from
+	 *            The first end point.
+	 * @param to
+	 *            The second end point.
+	 * @return The square of the distance between from and to.
+	 */
+	public double distanceSquared(P from, P to);
 }

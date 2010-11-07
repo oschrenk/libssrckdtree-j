@@ -22,27 +22,25 @@ package com.savarese.spatial;
  */
 public class KDTreeTest extends RangeSearchTreeTestCase<Integer> {
 
-  protected
-    RangeSearchTree<Integer, GenericPoint<Integer>, GenericPoint<Integer>>
-    _newTreeFixture_()
-  {
-    return new KDTree<Integer, GenericPoint<Integer>, GenericPoint<Integer>>();
-  }
+	protected RangeSearchTree<Integer, GenericPoint<Integer>, GenericPoint<Integer>>
+			newTreeFixture() {
+		return new KDTree<Integer, GenericPoint<Integer>, GenericPoint<Integer>>();
+	}
 
-  public Integer newCoord(int val) {
-    return val;
-  }
+	public Integer newCoord(int val) {
+		return val;
+	}
 
-  public Integer getMaxCoord() {
-    return 16384;
-  }
+	public Integer getMaxCoord() {
+		return 16384;
+	}
 
-  public Integer getMinCoord() {
-    return -16384;
-  }
+	public Integer getMinCoord() {
+		return -16384;
+	}
 
-  public int getNumPoints() {
-    return 16384;
-  }
+	public int getNumPoints() {
+		return 16384;
+	}
 
 }
